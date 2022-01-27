@@ -1,0 +1,7 @@
+664814
+Windows_NT
+10.0.22000
+8434716672
+1746182144
+[object Object]
+Windows 10 Home Single Language
