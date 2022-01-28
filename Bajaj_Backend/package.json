@@ -1,5 +1,6 @@
 {
   "dependencies": {
+    "directory-tree": "^3.0.1",
     "nodemon": "^2.0.15"
   }
 }

@@ -1,0 +1,53 @@
+GET
+/home
+Fri Jan 28 2022
+false
+
+function(stream) {
+  let paused = false;
+
+  // TODO (ronag): Should this.destroy(err) emit
+  // 'error' on the wrapped stream? Would require
+  // a static factory method, e.g. Readable.wrap(stream).
+
+  stream.on('data', (chunk) => {
+    if (!this.push(chunk) && stream.pause) {
+      paused = true;
+      stream.pause();
+    }
+  });
+
+  stream.on('end', () => {
+    this.push(null);
+  });
+
+  stream.on('error', (err) => {
+    errorOrDestroy(this, err);
+  });
+
+  stream.on('close', () => {
+    this.destroy();
+  });
+
+  stream.on('destroy', () => {
+    this.destroy();
+  });
+
+  this._read = () => {
+    if (paused && stream.resume) {
+      paused = false;
+      stream.resume();
+    }
+  };
+
+  // Proxy all the other methods. Important when wrapping filters and duplexes.
+  const streamKeys = ObjectKeys(stream);
+  for (let j = 1; j < streamKeys.length; j++) {
+    const i = streamKeys[j];
+    if (this[i] === undefined && typeof stream[i] === 'function') {
+      this[i] = stream[i].bind(stream);
+    }
+  }
+
+  return this;
+}
